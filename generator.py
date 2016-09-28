@@ -4,7 +4,6 @@
 
 import os
 import jinja2
-import txt
 
 TEMPLATE_FILENAME = 'kurstemplate.j2'
 DATA_FILENAME = 'data.txt'
