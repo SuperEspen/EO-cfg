@@ -1,3 +1,4 @@
+# Author: Gunnar Jan Ellingsen	
 # Version 1.0
 # For Atea workshop  - learning
 
@@ -37,7 +38,7 @@ for row in csv.DictReader(open(CSVDATA_FILENAME)):
 	with open(row['HOSTNAME'] + '.txt', 'w+') as f:
 		f.write(template.render(row).encode('utf-8'))
 		print ('Writing file ' + row['HOSTNAME'] + '.txt')
-		f.close()# Author: Gunnar Jan Ellingsen	
+		f.close()
 
 
 ##
