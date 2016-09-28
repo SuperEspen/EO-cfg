@@ -35,11 +35,11 @@
 {#
 ! Disse må settes først, før statisk config pastes, setter hostnavn, domene, genererer RSA nøkler for SSH, SNMP, etc.
 #}
+enablepassword {{ENABLEPASSWORD}}
+user {{USER}}
+password2 {{PASSWORD2}}
 hostname {{ HOSTNAME }}
-vlan {{ MGMTVLAN }}
-name MGMTVLAN
-interface vlan {{ MGMTVLAN }}
-ip address {{ MGMTIP }} {{ MGMTSUBNET }}
+ip address {{ IPADDRESS }} {{ SUBNET }}
 no shut
 ip default-gateway {{ MGMTGW }}
 ip domain-name {{ DOMAIN }} 
