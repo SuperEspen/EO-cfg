@@ -10,63 +10,39 @@
 
 ! Unike variabler per device, verdier hentes fra data.csv
 !  HOSTNAME 		Hostnavn, uten domene, ikke space, maks 15 tegn
-!  MGMTVLAN			VLAN for management switch (1-4 siffer)
 !  MGMTIP			IP for management interface, 4 oktetter
-!  MGMTSUBNET		Subnet for management interface, 4 oktetter
-!  MGMTGW			Default GW for management nettet, 4 oktetter
-
-! Statiske variabler som oftest er like for alle devicer i et nett, verdier hentes fra data.csv
-!  DOMAIN   		Domene, sett net.local om ikke annet finnes
-!  ROCOMMUNITY 		snmp-read only community
-!  RWCOMMUNITY 		snmp-rw community
-!  CONTACT 			snmp contact
-!  LOCATION 		snmp location
-!  ENABLESECRET 	Passord for enable, kun ved utfall av AAA
-!  TFTPIP 			TFTP server IP adresse (For archive av config, software, etc)
-!  SYSLOGIP			Syslog server IP
-!  RADIUS1			AAA server 1
-!  RADIUS2			AAA server 2
-!  RADIUSKEY		Radius key
-!  NTP1				NTP server 1
-!  NTP2				NTP server 2
-#}
-
 
 {#
 ! Disse må settes først, før statisk config pastes, setter hostnavn, domene, genererer RSA nøkler for SSH, SNMP, etc.
 #}
-enablepassword {{ENABLEPASSWORD}}
-user {{USER}}
-password2 {{PASSWORD2}}
+
 hostname {{ HOSTNAME }}
-ip address {{ IPADDRESS }} {{ SUBNET }}
+ip address {{ IPADDRESS }} 255.255.255.0
 no shut
-ip default-gateway {{ MGMTGW }}
-ip domain-name {{ DOMAIN }} 
+ip default-gateway 10.10.10.1
+ip domain-name Domene
 
 ip access-list standard ACL-MGMT
 description Management ACL, for SNMP, SSH, etc.
 permit ip 10.0.0.0 0.255.255.255
 permit ip 100.0.0.0 0.255.255.255
-snmp-server community {{ ROCOMMUNITY }} RO ACL-MGMT
-snmp-server community {{ RWCOMMUNITY }} RW ACL-MGMT
-snmp-server contact {{ CONTACT }}
-snmp-server location {{ LOCATION }}
+
+snmp-server contact POC1
+snmp-server location loc1
 snmp-server enable traps
 snmp-server ifindex persist
-ntp server {{ NTP1 }}
-ntp server {{ NTP2 }}
+ntp server 8.8.8.8
+ntp server 1.2.3.4
 
 ! Passord og brukere for lokal fallback login
 no enable password
-enable secret {{ ENABLESECRET }}
-username local-admin privilege 15 secret {{ ENABLESECRET }}
+enable secret HEMMELIIIIG!!!
+username local-admin privilege 15 secret Sekret
 
 ! AAA med fallback til local ved AAA failure.
 aaa new-model
 aaa group server radius RADIUSSERVERE
-server-private {{ RADIUS1 }} key {{ RADIUSKEY }}
-server-private {{ RADIUS2 }} key {{ RADIUSKEY }}
+server-private R1 key nokkel
 aaa authentication login default group RADIUSSERVERE local enable none
 aaa authorization exec default group RADIUSSERVERE local 
 
@@ -76,13 +52,6 @@ clock summer-time CEST recurring last Sun Mar 2:00 last Sun Oct 3:00
 service timestamps debug datetime msec localtime show-timezone
 service timestamps log datetime msec localtime show-timezone
 no logging console
-login block-for 300 attempts 10 within 60
-login on-failure log
-login on-success log
-login delay 5
-logging buffered 128000 debugging
-logging {{ SYSLOGIP }}
-logging on
 
 ! Set services status 
 no service pad
@@ -105,14 +74,7 @@ no ip source-route
 
 ! Arkivering av config til flash
 ! Endre evnt. path
-archive
- log config
-  logging enable
-  logging persistent
-  notify syslog
-  hidekeys
-  path flash:$h-$t.cfg
- write-memory
+
 
 ! Enable ssh (Denne tar tid, sjekk at hele config går igjennom)
 crypto key generate rsa general mod 1024
