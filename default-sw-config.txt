@@ -1,0 +1,53 @@
+
+
+conf t
+service password-encryption
+enable secret 0 B1ab1ab1a
+line vty 0 15
+transport input telnet ssh
+exit
+username admin password B1ab1ab1a
+aaa new-model
+hostname SWB2
+ip domain-name vopd.no
+crypto key generate rsa mod 1024
+exit
+wr mem
+
+conf t
+vlan 150
+name mgmt
+vlan 151
+name Gjest
+vlan 152
+name Ansatt
+exit
+int vlan 150
+descr ** MGMT-if **
+ip address 192.168.150.10 255.255.255.0
+no shut
+int vlan1
+shut
+
+int ran gi 1/0/1 - 12
+descr ** Ansatt **
+swi acc vlan 152
+
+int ran gi 1/0/13 - 24
+descr ** AP/MGMT **
+swi acc vlan 150
+
+int gi 1/0/25
+descr ** Uplink to CORE **
+swi mode trunk
+exit
+exit
+write mem
+
+
+
+
+
+
+
+
